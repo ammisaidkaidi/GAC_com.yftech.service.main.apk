@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MainService</string>
+    <string name="yftech_permission_audio">用于声音相关</string>
+    <string name="yftech_permission_audio_effect">用于音效相关</string>
+    <string name="yftech_permission_car">用于车辆相关</string>
+    <string name="yftech_permission_data">用于访问数据库</string>
+    <string name="yftech_permission_input">用于输入相关</string>
+    <string name="yftech_permission_screen">用于屏幕相关</string>
+    <string name="yftech_permission_test">用于测试权限</string>
+    <string name="yftech_permissions_group">yftech permissions</string>
+</resources>

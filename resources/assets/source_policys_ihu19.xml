@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    源标识
+    字段说明
+    cur_source 当前源
+    in_source  切入源
+    —————————————————————————————————————————————————————————
+    |    动作      | 说明                                    |
+    —————————————————————————————————————————————————————————
+    |    mutex     | 互斥                                    |
+    —————————————————————————————————————————————————————————
+    |    interrupt | 中断                                    |
+    —————————————————————————————————————————————————————————
+    |    forbidden | 禁止（无需声明，不添加表示禁止走delayed策略）|
+    —————————————————————————————————————————————————————————
+    |    mix       | 混音                                    |
+    —————————————————————————————————————————————————————————
+-->
+<strategy tag="策略">
+    <!--
+    StreamType 对应,该StreamType使用的策略对应
+    ——————————————————————————————————————————————————————————
+    |  id    |                 标识说明                        |
+    ——————————————————————————————————————————————————————————
+    | type   |          系统所用StreamType                     |
+    ——————————————————————————————————————————————————————————
+    |  use   |   将使用的策略名 policy标签里面的cur_source属性id值|
+    ——————————————————————————————————————————————————————————
+    P2是不同相同喇叭则混音输出
+    R是相同喇叭输出则中断
+     -->
+    <streams>
+        <stream id="STREAM_NAVI" type="24" use="navi" tag="导航音"/>
+        <stream id="STREAM_NAVI_CARPLAY" type="39" use="navi" tag="导航音"/>
+        <stream id="STREAM_NAVI_CARLIFE" type="40" use="navi" tag="导航音"/>
+
+        <stream id="STREAM_ALARM" type="4" use="dashboard_cdc_mix" tag="CDC驻车雷达报警音(混音)"/>
+        <stream id="STREAM_HDMI" type="35" use="dashboard_cdc_not_mix" tag="CDC驻车雷达报警音(不混音)"/>
+        <stream id="STREAM_RADAR" type="28" use="dashboard_level1" tag="level1特定驾驶安全警示音(静音)"/>
+        <stream id="STREAM_BACKCAR" type="12" use="dashboard_level2" tag="level2一般驾驶安全警示音(抑制)"/>
+        <stream id="STREAM_DVR" type="29" use="dashboard_level3" tag="level3普通警示音(混音)"/>
+
+        <stream id="STREAM_NOTIFICATION" type="5" use="vr" tag="语音"/>
+        <stream id="STREAM_VOICE" type="26" use="vr" tag="语音"/>
+        <stream id="STREAM_TTS" type="9" use="vr" tag="语音"/>
+        <stream id="STREAM_VOICE_CARPLAY" type="41" use="vr" tag="语音"/>
+        <stream id="STREAM_VOICE_CARLIFE" type="42" use="vr" tag="语音"/>
+
+        <stream id="STREAM_VOICE_CALL" type="0" use="bt_phone" tag="蓝牙电话"/>
+        <stream id="STREAM_BLUETOOTH_SCO" type="6" use="bt_phone" tag="蓝牙电话"/>
+        <stream id="STREAM_PHONE" type="21" use="bt_phone" tag="蓝牙电话"/>
+        <stream id="STREAM_RING" type="2" use="bt_phone" tag="蓝牙铃声"/>
+        <stream id="STREAM_VOIP" type="22" use="bt_phone" tag="蓝牙电话"/>
+        <stream id="STREAM_PHONE_CARLIFE" type="44" use="bt_phone" tag="蓝牙电话"/>
+        <stream id="STREAM_PHONE_CARPLAY" type="43" use="bt_phone" tag="蓝牙电话"/>
+
+        <stream id="STREAM_MUSIC" type="3" use="media" tag="媒体"/>
+        <stream id="STREAM_VIDEO" type="18" use="media" tag="视频"/>
+        <stream id="STREAM_RADIO" type="19" use="media" tag="收音机"/>
+        <stream id="STREAM_A2DP" type="20" use="media" tag="蓝牙音乐"/>
+        <stream id="STREAM_CARLIFE" type="34" use="media" tag="CARLIFE"/>
+        <stream id="STREAM_CARPLAY" type="33" use="media" tag="CARPLAY"/>
+        <stream id="STREAM_AUX" type="30" use="media" tag="U盘媒体"/>
+
+        <stream id="STREAM_TBOX" type="23" use="tbox" tag="E-CALL"/>
+
+        <stream id="STREAM_SCREEN" type="32" use="screensaver" tag="屏保"/>
+
+        <stream id="STREAM_STANDBY" type="31" use="standby" tag="待机"/>
+
+        <stream id="STREAM_WARNING" type="48" use="warning" tag="警告"/>
+
+    </streams>
+
+    <!--
+        音量曲线
+        [id] 音量曲线名称，唯一ID值;
+    -->
+    <volumes>
+        <volume id="media" value="-144,-69.0,-65.5,-61.5,-57.5,-53.5,-52.5,-51.5,-50.5,-51.5,-50.5,-49.5,-48.5,-47.5,-44.5,-43.5,-41.5,-38.5,-37.5,-35.5,-33.5,-31.5,-29.5,-27.5,-25.5,-23.5,-21.5,-19.5,-17.5,-15.5,-13.5,-11.5,-9.5,-8.5,-7.5,-6.5,-3.5,-2.5,-1.5,0"/>
+        <volume id="phone" value="-144,-69.0,-47.5,-27.5,-19.5,-11.5,-8.5,-7.5,-3.5,-2.5,-1.5"/>
+        <volume id="tts" value="-144,-69.0,-47.5,-27.5,-19.5,-11.5,-8.5,-7.5,-3.5,-2.5,-1.5"/>
+        <volume id="null" value="-144"/>
+    </volumes>
+
+    <!--
+        通道分配
+        [id]     通道名称，唯一ID值;
+        [index]  值必须为唯一，当use为native时必须是真实通道索引值;
+        [value]  该通道流，对应streams里面stream id;
+        [change] 是否需要切换通道，默认为false;
+        [offset] 通道音量矫正值,默认值为0;
+
+        [use] 取值为android和native，默认native;
+              值为android（对应streams配置的type值,index为内部虚拟通道，实际不存在）时，走Android标准AudioSystem接口进行音量调节;
+              值为native（必须有对应index值，index为真实通道，实际存在）时,走DSP接口进行音量调节;
+
+        [min] 为最小索引值;
+        [max] 为最大索引值;
+        [def] 为默认索引值;
+    -->
+    <channels tag="虚拟/物理通道分配">
+        <channel id="channel_media" index="1" value="STREAM_MUSIC,STREAM_VIDEO,STREAM_A2DP,STREAM_CARLIFE,STREAM_CARPLAY,STREAM_AUX" change="true" use="native" min="0" max="39" def="12" volume="media" priority="0"/>
+        <channel id="channel_radio" index="2" value="STREAM_RADIO" change="true" use="native" min="0" max="39" def="12" volume="media" priority="0"/>
+        <channel id="channel_phone" index="10" value="STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX" use="android" min="3" max="10" def="5" volume="phone" priority="1"/>
+        <channel id="channel_tts" index="11" value="STREAM_NAVI,STREAM_NAVI_CARPLAY,STREAM_NAVI_CARLIFE,STREAM_NOTIFICATION,STREAM_VOICE,STREAM_TTS,STREAM_VOICE_CARPLAY,STREAM_VOICE_CARLIFE" use="android" min="0" max="10" def="5" volume="tts" priority="2"/>
+        <channel id="channel_null" index="12" value="STREAM_ALARM,STREAM_HDMI,STREAM_RADAR,STREAM_BACKCAR,STREAM_DVR,STREAM_SCREEN,STREAM_STANDBY,STREAM_WARNING" use="android" min="0" max="0" def="0" volume="null"/>
+    </channels>
+
+    <!--
+        源策略
+        [id]    源名称，唯一ID值.通话源要包含phone字样、导航源要包含navi字样、语音源要包含vr字样、微信源要包含wechat字样、倒车源要包含reverse字样、屏保源要包含screensaver字样
+        [tag]   标签
+        [mix]   该源进入时，需要降音的通道ID集
+        [mix_value] 降音百分比
+        [mix_valid] 混音是否有效，默认有效
+    -->
+    <policy tag="策略表">
+
+        <cur_source id="dashboard_level1" tag="level1特定驾驶安全警示音(静音)">
+            <in_source id="STREAM_RADAR,STREAM_ALARM,STREAM_HDMI,STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX,STREAM_NAVI,STREAM_NAVI_CARPLAY,STREAM_NAVI_CARLIFE,STREAM_NOTIFICATION,STREAM_VOICE,STREAM_TTS,STREAM_VOICE_CARPLAY,STREAM_VOICE_CARLIFE,STREAM_SCREEN,STREAM_STANDBY,STREAM_WARNING" action="mix"/>
+        </cur_source>
+
+        <cur_source id="dashboard_level2" tag="level2一般驾驶安全警示音(抑制)" mix="channel_media" mix_value="20" mix_valid="true">
+            <in_source id="STREAM_RADAR" action="interrupt"/>
+            <in_source id="STREAM_BACKCAR,STREAM_ALARM,STREAM_HDMI,STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX,STREAM_NAVI,STREAM_NAVI_CARPLAY,STREAM_NAVI_CARLIFE,STREAM_NOTIFICATION,STREAM_VOICE,STREAM_TTS,STREAM_VOICE_CARPLAY,STREAM_VOICE_CARLIFE,STREAM_MUSIC,STREAM_VIDEO,STREAM_A2DP,STREAM_CARLIFE,STREAM_CARPLAY,STREAM_AUX,STREAM_RADIO,STREAM_SCREEN,STREAM_STANDBY,STREAM_WARNING" action="mix"/>
+        </cur_source>
+
+        <cur_source id="dashboard_level3" tag="level3普通警示音(混音)">
+            <in_source id="STREAM_RADAR,STREAM_BACKCAR" action="interrupt"/>
+            <in_source id="STREAM_DVR,STREAM_ALARM,STREAM_HDMI,STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX,STREAM_NAVI,STREAM_NAVI_CARPLAY,STREAM_NAVI_CARLIFE,STREAM_NOTIFICATION,STREAM_VOICE,STREAM_TTS,STREAM_VOICE_CARPLAY,STREAM_VOICE_CARLIFE,STREAM_MUSIC,STREAM_VIDEO,STREAM_A2DP,STREAM_CARLIFE,STREAM_CARPLAY,STREAM_AUX,STREAM_RADIO,STREAM_SCREEN,STREAM_STANDBY,STREAM_WARNING" action="mix"/>
+        </cur_source>
+
+        <cur_source id="dashboard_cdc_mix" tag="CDC驻车雷达报警音(混音)">
+            <in_source id="STREAM_ALARM,STREAM_HDMI,STREAM_RADAR,STREAM_BACKCAR,STREAM_DVR,STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX,STREAM_NAVI,STREAM_NAVI_CARPLAY,STREAM_NAVI_CARLIFE,STREAM_NOTIFICATION,STREAM_VOICE,STREAM_TTS,STREAM_VOICE_CARPLAY,STREAM_VOICE_CARLIFE,STREAM_MUSIC,STREAM_VIDEO,STREAM_A2DP,STREAM_CARLIFE,STREAM_CARPLAY,STREAM_AUX,STREAM_RADIO,STREAM_SCREEN,STREAM_STANDBY,STREAM_WARNING" action="mix"/>
+        </cur_source>
+
+        <cur_source id="dashboard_cdc_not_mix" tag="CDC驻车雷达报警音(不混音)">
+            <in_source id="STREAM_ALARM,STREAM_HDMI,STREAM_RADAR,STREAM_BACKCAR,STREAM_DVR,STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX,STREAM_SCREEN,STREAM_STANDBY,STREAM_WARNING" action="mix"/>
+        </cur_source>
+
+        <cur_source id="tbox" tag="e-call">
+            <in_source id="STREAM_ALARM,STREAM_HDMI,STREAM_RADAR,STREAM_BACKCAR,STREAM_DVR,STREAM_TBOX,STREAM_STANDBY" action="mix"/>
+        </cur_source>
+
+        <cur_source id="bt_phone" tag="蓝牙电话">
+            <in_source id="STREAM_ALARM,STREAM_HDMI,STREAM_RADAR,STREAM_BACKCAR,STREAM_DVR" action="mix"/>
+            <in_source id="STREAM_TBOX,STREAM_STANDBY" action="interrupt"/>
+        </cur_source>
+
+        <cur_source id="vr" tag="语音" mix="channel_media" mix_value="20" mix_valid="true">
+            <in_source id="STREAM_RADAR,STREAM_BACKCAR,STREAM_DVR,STREAM_ALARM,STREAM_NOTIFICATION,STREAM_VOICE,STREAM_TTS,STREAM_VOICE_CARPLAY,STREAM_VOICE_CARLIFE,STREAM_MUSIC,STREAM_VIDEO,STREAM_A2DP,STREAM_CARLIFE,STREAM_CARPLAY,STREAM_AUX,STREAM_RADIO,STREAM_SCREEN,STREAM_WARNING" action="mix"/>
+            <in_source id="STREAM_HDMI,STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX,STREAM_STANDBY" action="interrupt"/>
+            <in_source id="STREAM_NAVI,STREAM_NAVI_CARPLAY,STREAM_NAVI_CARLIFE" action="mutex"/>
+        </cur_source>
+
+        <cur_source id="navi" tag="导航" mix="channel_media" mix_value="20" mix_valid="true">
+            <in_source id="STREAM_RADAR,STREAM_BACKCAR,STREAM_DVR,STREAM_ALARM,STREAM_NAVI,STREAM_NAVI_CARPLAY,STREAM_NAVI_CARLIFE,STREAM_MUSIC,STREAM_VIDEO,STREAM_A2DP,STREAM_CARLIFE,STREAM_CARPLAY,STREAM_AUX,STREAM_RADIO,STREAM_SCREEN,STREAM_WARNING" action="mix"/>
+            <in_source id="STREAM_HDMI,STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX,STREAM_NOTIFICATION,STREAM_VOICE,STREAM_TTS,STREAM_VOICE_CARPLAY,STREAM_VOICE_CARLIFE,STREAM_STANDBY" action="interrupt"/>
+        </cur_source>
+
+        <cur_source id="media" tag="多媒体">
+            <in_source id="STREAM_RADAR,STREAM_HDMI,STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX,STREAM_SCREEN,STREAM_STANDBY,STREAM_WARNING" action="interrupt"/>
+            <in_source id="STREAM_BACKCAR,STREAM_DVR,STREAM_ALARM,STREAM_NAVI,STREAM_NAVI_CARPLAY,STREAM_NAVI_CARLIFE,STREAM_NOTIFICATION,STREAM_VOICE,STREAM_TTS,STREAM_VOICE_CARPLAY,STREAM_VOICE_CARLIFE" action="mix"/>
+            <in_source id="STREAM_MUSIC,STREAM_VIDEO,STREAM_A2DP,STREAM_CARLIFE,STREAM_CARPLAY,STREAM_AUX,STREAM_RADIO" action="mutex"/>
+        </cur_source>
+
+        <cur_source id="screensaver" tag="屏保">
+            <in_source id="STREAM_ALARM,STREAM_HDMI,STREAM_RADAR,STREAM_BACKCAR,STREAM_DVR,STREAM_SCREEN,STREAM_STANDBY,STREAM_WARNING" action="mix"/>
+            <in_source id="STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX" action="interrupt"/>
+        </cur_source>
+
+        <cur_source id="standby" tag="待机">
+            <in_source id="STREAM_STANDBY" action="mutex"/>
+            <in_source id="STREAM_TBOX" action="mix"/>
+        </cur_source>
+
+        <cur_source id="warning" tag="警告">
+            <in_source id="STREAM_STANDBY,STREAM_SCREEN,STREAM_WARNING" action="mix"/>
+            <in_source id="STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_PHONE,STREAM_RING,STREAM_VOIP,STREAM_PHONE_CARLIFE,STREAM_PHONE_CARPLAY,STREAM_TBOX" action="interrupt"/>
+        </cur_source>
+
+    </policy>
+
+</strategy>

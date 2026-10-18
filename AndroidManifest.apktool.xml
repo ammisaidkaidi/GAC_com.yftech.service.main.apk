@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="28" android:compileSdkVersionCodename="9" android:sharedUserId="android.uid.system" package="com.yftech.service.main" platformBuildVersionCode="1" platformBuildVersionName="1.0.1-20240923171146-3acbd1b-HEAD">
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.REORDER_TASKS"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="com.yftech.permission.media.service"/>
+    <uses-permission android:name="com.yftech.permission.service.bluetooth"/>
+    <uses-permission android:name="com.yftech.permission.service.transfer.phonelink"/>
+    <uses-permission android:name="com.yftech.permission.service.vehicle.COMMON"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.Manifest.permission.MASTER_CLEAR"/>
+    <permission-group android:description="@string/yftech_permissions_group" android:label="yftech" android:name="com.yftech.permissions"/>
+    <permission android:description="@string/yftech_permission_audio" android:label="yftech.audio" android:name="com.yftech.permission.service.main.audio" android:permissionGroup="com.yftech.permissions" android:protectionLevel="signature|preinstalled"/>
+    <permission android:description="@string/yftech_permission_test" android:label="yftech.test" android:name="com.yftech.permission.test" android:permissionGroup="com.yftech.permissions" android:protectionLevel="signature|preinstalled"/>
+    <permission android:description="@string/yftech_permission_car" android:label="yftech.car" android:name="com.yftech.permission.service.car" android:permissionGroup="com.yftech.permissions" android:protectionLevel="signature|preinstalled"/>
+    <permission android:description="@string/yftech_permission_screen" android:label="yftech.screen" android:name="com.yftech.permission.service.main.screen" android:permissionGroup="com.yftech.permissions" android:protectionLevel="signature|preinstalled"/>
+    <permission android:description="@string/yftech_permission_input" android:label="yftech.input" android:name="com.yftech.permission.service.main.input" android:permissionGroup="com.yftech.permissions" android:protectionLevel="signature|preinstalled"/>
+    <permission android:description="@string/yftech_permission_data" android:label="yftech.data" android:name="com.yftech.permission.service.main.data" android:permissionGroup="com.yftech.permissions" android:protectionLevel="signature|preinstalled"/>
+    <permission android:description="@string/yftech_permission_audio_effect" android:label="yftech.audio.effect" android:name="com.yftech.permission.service.main.audio.effect" android:permissionGroup="com.yftech.permissions" android:protectionLevel="signature|preinstalled"/>
+    <permission android:description="@string/yftech_permission_car" android:label="yftech.audio.effect" android:name="com.yftech.permission.service.vehicle.COMMON" android:permissionGroup="com.yftech.permissions" android:protectionLevel="signature|preinstalled"/>
+    <application android:allowBackup="true" android:defaultToDeviceProtectedStorage="true" android:directBootAware="true" android:icon="@mipmap/ic_launcher" android:label="@string/app_name" android:name="com.yftech.service.main.CarApplication" android:persistent="true" android:roundIcon="@mipmap/ic_launcher_round" android:supportsRtl="true" android:theme="@style/AppTheme">
+        <uses-library android:name="com.yftech.car.framework"/>
+        <uses-library android:name="com.yftech.vehicle.internal.adapter"/>
+        <uses-library android:name="com.yftech.vehicle.sdk"/>
+        <uses-library android:name="com.yftech.car.audioadapter"/>
+        <activity android:launchMode="singleTask" android:name="com.yftech.service.main.testui.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+        <service android:directBootAware="true" android:exported="true" android:name="com.yftech.service.main.CarMainService">
+            <intent-filter>
+                <action android:name="com.yftech.action.mainservice.start"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

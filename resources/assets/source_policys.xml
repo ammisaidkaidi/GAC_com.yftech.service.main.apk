@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/***源标识***/
+    /***字段说明***/
+    cur_source 当前源
+    in_source  切入源
+    /***执行动作***/
+    action:
+        mutex  互斥
+        interrupt  中断
+        forbidden  禁止（无需声明，不添加表示禁止走delayed策略）
+        mix   混音
+-->
+<strategy tag="策略">
+    <!--
+    StreamType 对应,该StreamType使用的策略对应
+    id:标识说明
+    type:系统所用StreamType
+    use:将使用的策略名 policy标签里面的cur_source属性id值
+     -->
+    <streams>
+        <stream id="STREAM_NAVI" type="1" use="navi" tag="导航音"/>
+        <stream id="STREAM_GIS" type="11" use="navi" tag="导航音"/>
+
+        <stream id="STREAM_TICK" type="9" use="notification" tag="按键音"/>
+        <stream id="STREAM_ALARM" type="4" use="notification" tag="警报音"/>
+        <stream id="STREAM_NOTIFICATION" type="5" use="notification" tag="提示音"/>
+
+        <stream id="STREAM_SPEECH" type="35" use="vr" tag="语音"/>
+        <stream id="STREAM_VIRTUAL_REVERSE" type="27" use="reverse" tag="倒车"/>
+
+        <stream id="STREAM_VOICE_CALL" type="0" use="bt_phone" tag="蓝牙电话"/>
+        <stream id="STREAM_BLUETOOTH_SCO" type="6" use="bt_phone" tag="蓝牙电话"/>
+        <stream id="STREAM_RING" type="2" use="bt_phone" tag="蓝牙铃声"/>
+
+        <stream id="STREAM_MUSIC" type="3" use="media" tag="多媒体"/>
+        <stream id="STREAM_RADIO_TUNER" type="19" use="media" tag="收音机"/>
+
+        <stream id="STREAM_TBOXPHONE" type="32" use="tbox" tag="紧急救援"/>
+
+        <stream id="STREAM_SCREEN_SAVER" type="33" use="screensaver" tag="屏保"/>
+
+        <stream id="STREAM_STANDBY" type="50" use="standby" tag="待机"/>
+    </streams>
+
+    <!--
+        音量曲线
+        [id] 音量曲线名称，唯一ID值;
+    -->
+    <volumes>
+        <volume id="media" value="-144,-68,-65,-63,-61,-59,-58,-57,-56,-55,-54,-52,-50,-48,-46,-44,-42,-40,-38,-36,-34,-32,-30,-28,-26,-24,-22,-20,-18,-16,-14,-12,-10,-9,-8,-7,-6,-5,-4,-3"/>
+        <volume id="radio" value="-144,-50,-47,-45,-43,-41,-39,-37,-35,-33,-31,-29,-27,-25,-24,-23,-22,-21,-20,-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,-0,1"/>
+        <volume id="phone" value="-144,-66,-60,-56,-52,-48,-46,-44,-42,-40,-38,-36,-34,-32,-30,-28,-26,-24,-22,-20,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,0"/>
+        <volume id="radar" value="-144,-68,-65,-63,-61,-17,-16,-15,-14,-13,-12,-10,-8,-6,-4,-2"/>
+    </volumes>
+
+    <!--
+        通道分配
+        [id]通道名称，唯一ID值;
+        [index]值必须为唯一，当use为native时必须是真实通道索引值;
+        [value]该通道流，对应streams里面stream id;
+        [change]是否需要切换通道，默认为false;
+        [offset]通道音量矫正值,默认值为false;
+
+        [use]取值为android和native，默认native;
+             值为android（对应streams配置的type值,index为内部虚拟通道，实际不存在）时，走Android标准AudioSystem接口进行音量调节;
+             值为native（必须有对应index值，index为真实通道，实际存在）时,走DSP接口进行音量调节;
+
+        [min]为最小索引值;
+        [max]为最大索引值;
+        [def]为默认索引值;
+    -->
+    <channels tag="虚拟/物理通道分配">
+        <channel id="channel_media"  index="0" value="STREAM_MUSIC" change="true" use="android" min="0" max="30" def="10"/>
+        <channel id="channel_fm"     index="1" value="STREAM_RADIO_TUNER" change="true" use="native" min="0" max="30" def="10"/>
+        <channel id="channel_tbox"   index="2" value="STREAM_TBOXPHONE" use="android" min="0" max="30" def="10"/>
+        <channel id="channel_notify" index="3" value="STREAM_NOTIFICATION,STREAM_SPEECH,STREAM_TICK,STREAM_ALARM" use="android" min="0" max="30" def="10"/>
+        <channel id="channel_phone"  index="4" value="STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_RING" use="android" min="0" max="30" def="10"/>
+        <channel id="channel_navi"   index="5" value="STREAM_NAVI,STREAM_GIS" use="android" min="0" max="30" def="10"/>
+    </channels>
+
+    <policy tag="策略表">
+
+        <!-- [多媒体] -->
+        <cur_source id="media" tag="多媒体">
+            <in_source id="STREAM_STANDBY,STREAM_SCREEN_SAVER,STREAM_SPEECH,STREAM_VOICE_CALL,STREAM_VIRTUAL_REVERSE,STREAM_TBOXPHONE,STREAM_NOTIFICATION" action="interrupt"/>
+            <in_source id="STREAM_NAVI,STREAM_GIS" action="mix"/>
+            <in_source id="STREAM_MUSIC,STREAM_RADIO_TUNER" action="mutex"/>
+        </cur_source>
+
+        <!-- [倒车/360环视] -->
+        <cur_source id="reverse" tag="倒车/360环视">
+            <in_source id="STREAM_VOICE_CALL,STREAM_TBOXPHONE" action="mix"/>
+            <in_source id="STREAM_STANDBY" action="interrupt"/>
+        </cur_source>
+
+        <!-- [语音在前台处于激活态，包含唤醒、唤醒后应答语、单工录音期间、Loading中、双工多轮对话录音态几个状态，以及微信的IM录音状态]语音生命周期,微信录音 -->
+        <cur_source id="vr" tag="语音在前台处于激活态">
+            <in_source id="STREAM_STANDBY" action="mutex"/>
+            <in_source id="STREAM_VOICE_CALL,STREAM_TBOXPHONE,STREAM_SCREEN_SAVER" action="interrupt"/>
+            <in_source id="STREAM_VIRTUAL_REVERSE" action="mutex"/>
+            <in_source id="STREAM_SPEECH" action="mix"/>
+        </cur_source>
+
+        <!-- [通知类消息]-->
+        <cur_source id="notification" tag="通知类消息" mix="channel_navi" mix_value="10" mix_valid="false">
+            <in_source id="STREAM_SCREEN_SAVER,STREAM_STANDBY,STREAM_TBOXPHONE,STREAM_VOICE_CALL,STREAM_SPEECH" action="interrupt"/>
+            <in_source id="STREAM_VIRTUAL_REVERSE" action="mutex"/>
+            <in_source id="STREAM_NAVI,STREAM_GIS,STREAM_NOTIFICATION" action="mix"/>
+        </cur_source>
+
+        <!-- [导航]带通道降音属性：
+                channel_media,channel_fm 通道降到导航音 (100 - 20)%
+                [mix]执行降音通道对应channel id;
+                [mix_value]降音幅度（到参考音）百分比
+                [mix_valid]是否有效（是否开启）,默认开启
+        -->
+        <cur_source id="navi" tag="导航" mix="channel_media,channel_fm" mix_value="20,20" mix_valid="false">
+            <in_source id="STREAM_SCREEN_SAVER,STREAM_STANDBY,STREAM_VOICE_CALL" action="interrupt"/>
+            <in_source id="STREAM_VIRTUAL_REVERSE,STREAM_TBOXPHONE" action="mutex"/>
+            <in_source id="STREAM_MUSIC,STREAM_RADIO_TUNER,STREAM_NOTIFICATION" action="mix"/>
+            <in_source id="STREAM_NAVI,STREAM_GIS,STREAM_SPEECH" action="mutex"/>
+        </cur_source>
+
+        <!-- [蓝牙通话]带通道降音属性：
+                channel_navi 通道降到通话音 40%
+        -->
+        <cur_source id="bt_phone" tag="蓝牙电话">
+            <in_source id="STREAM_TBOXPHONE,STREAM_STANDBY" action="interrupt"/>
+            <in_source id="STREAM_VIRTUAL_REVERSE,STREAM_VOICE_CALL,STREAM_BLUETOOTH_SCO,STREAM_RING" action="mix"/>
+        </cur_source>
+
+        <!-- [屏保界面] -->
+        <cur_source id="screensaver" tag="屏保">
+            <in_source id="STREAM_VIRTUAL_REVERSE,STREAM_TBOXPHONE,STREAM_VOICE_CALL,STREAM_STANDBY" action="interrupt"/>
+        </cur_source>
+
+        <!-- [待机] 除TBox通话，其他不容许源切入-->
+        <cur_source id="standby" tag="待机">
+            <in_source id="STREAM_TBOXPHONE" action="interrupt"/>
+        </cur_source>
+
+        <!-- [TBOX] 不容许如何源切入 ,其他源切入进入delayed策略-->
+        <cur_source id="tbox" tag="E/B-Call">
+        </cur_source>
+
+    </policy>
+</strategy>
